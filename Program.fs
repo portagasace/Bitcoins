@@ -34,12 +34,18 @@ let hashLeadingZerosCount (hashkey :string) =
     count    
  
 //GENERATE HASH KEY UNTILL LEADING ZEROS DONT BECOME N
+let generateHash (n:int) = 
+    let mutable leadingZeroCount = 1;
+    while(leadingZeroCount <> n) do 
+        leadingZeroCount <-
+            ranStr(30)
+            |>SHA256
+            |>hashLeadingZerosCount
+        printfn $"Leading zero count: %i{leadingZeroCount}"
 
-    
         
-let hashkey = "0000003003F0DA82F464864184E5F578E2B529447FC1F2D57A4154720FD698EFD5CA40496"
-printfn $"Leading zeros are : %i{hashLeadingZerosCount(hashkey)}"
 
+generateHash(4)
 
 
 
