@@ -13,7 +13,7 @@ let ranStr n =
     let r = Random()
     let chars = Array.concat([[|'a' .. 'z'|];[|'A' .. 'Z'|];[|'0' .. '9'|]])
     let sz = Array.length chars in
-    String(Array.init n (fun _ -> chars.[r.Next sz]))
+    "ppatil1" + String(Array.init n (fun _ -> chars.[r.Next sz]))
     
  //GENERATE HASH KEY FROM RANDOM STRING
 let SHA256 (text:string) =
@@ -32,20 +32,33 @@ let hashLeadingZerosCount (hashkey :string) =
         elif elem <> '0'  then
              flag <- 1
     count    
- 
-//GENERATE HASH KEY UNTILL LEADING ZEROS DONT BECOME N
+ //GENERATE HASH KEY (STOP ON FINDING THE 1ST COIN)
 let generateHash (n:int) = 
     let mutable leadingZeroCount = 1;
+    let mutable randomString = ""
+    let mutable  hashKey = ""
     while(leadingZeroCount <> n) do 
-        leadingZeroCount <-
-            ranStr(30)
-            |>SHA256
-            |>hashLeadingZerosCount
-        printfn $"Leading zero count: %i{leadingZeroCount}"
+        randomString <- ranStr(30)
+        hashKey <- randomString |> SHA256
+        leadingZeroCount <- hashKey|>hashLeadingZerosCount
+    printfn $"%s{randomString}"
+    printfn $"%s{hashKey}"
 
-        
+//GENERATE HASH KEY (FIND COINS INFINITELY)
+let generateHashh (n:int) = 
+    let mutable leadingZeroCount = 1;
+    while(true) do 
+        let randomString = ranStr(30)
+        let hashKey = randomString|>SHA256
+        leadingZeroCount <- hashKey|>hashLeadingZerosCount
+        if(leadingZeroCount = n) then 
+            printfn $"%s{randomString}"
+            printfn $"%s{hashKey}"
 
-generateHash(4)
+
+       
+
+generateHashh(3)
 
 
 
