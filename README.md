@@ -3,7 +3,9 @@ DOS Project 1
 The goal of this first project is to use F# and the actor model to build a Simple Bitcoin model usin SHA-256, and create multiple actors to mine the coins using AKKA.net.
 
 
-
+We divided the problem into two parts----------------------------
+1. Generating random strings (relatively easier, so this subproblem was assigned less workers)
+2. Mining coins (this subproblem was assigned more workers)
 
 
 
