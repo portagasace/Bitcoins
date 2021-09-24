@@ -66,25 +66,10 @@ let main argv =
         printfn "Starting the seed node"
         let seedSystem = seedAkkaConfig seedHostName port |> System.create systemName
 
-        let boss =
-            spawn seedSystem nodeName (fun (mailBox: Actor<ClusterEvent.IClusterDomainEvent>) -> 
-                let cluster = Cluster.Get seedSystem
-                cluster.Subscribe(mailBox.Self, [| typeof<ClusterEvent.IClusterDomainEvent> |])
-                mailBox.Defer(fun () -> cluster.Unsubscribe(mailBox.Self))
-                let rec loop () = 
-                    actor {
-                        let! message = mailBox.Receive()                        
-                        match message with
-                        | :? ClusterEvent.MemberJoined as event -> 
-                            printfn "Remote node %s joined the Cluster at %O" event.Member.Address.Host DateTime.Now
-                        | :? ClusterEvent.MemberLeft as event -> 
-                            printfn "Remote Node %s left the Cluster at %O" event.Member.Address.Host DateTime.Now
-                        | other -> 
-                            printfn "Cluster task received %O at %O" other DateTime.Now
-        
-                        return! loop()
-                    }
-                loop())
+// for i = 1 to n do
+//     if (x.[i]==0) then count++        
+//     else
+
 
         let cluster = Cluster.Get seedSystem
         cluster.RegisterOnMemberUp (fun () -> 
