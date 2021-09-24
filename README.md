@@ -12,7 +12,7 @@ We divided the problem into two parts----------------------------
 
 The result of running your program for input 4 was :- ![image](https://user-images.githubusercontent.com/72169934/134735728-1bbf02b5-9a53-4cb6-bb86-bf26bf7401ed.png)
 
-The running time for the above as reported for 6 zeros was Current Stats
+The running time for  6 zeros was :-
 ![image](https://user-images.githubusercontent.com/72169934/134735571-a6cc74f7-e595-4a24-b334-5560eced6a21.png)
 
 
