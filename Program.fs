@@ -30,6 +30,8 @@ let main argv =
     let minerName = 
         if nodeType = "singleNode" then "akka://" + systemName + "/user/minerProvider" else "akka.tcp://" + systemName +  "@" + seedHostName + ":" + port + "/user/minerProvider"
 
+// Defining Hash Generator Actor
+
     let hashGen (mailBox: Actor<MessageType>) = 
         let rec loop() = actor {
             let! message = mailBox.Receive();
@@ -43,7 +45,9 @@ let main argv =
             return! loop()
         }
         loop()
-    
+
+ // Defining the minor actor 
+ 
     let mineWork (mailbox: Actor<Message>) =
         let rec loop() = actor {
             let! message = mailbox.Receive ()
@@ -61,14 +65,12 @@ let main argv =
             return! loop ()
         }
         loop()
-     
+ 
     if nodeType = "seed" then  
         printfn "Starting the seed node"
         let seedSystem = seedAkkaConfig seedHostName port |> System.create systemName
 
-// for i = 1 to n do
-//     if (x.[i]==0) then count++        
-//     else
+
 
 
         let cluster = Cluster.Get seedSystem
@@ -108,7 +110,7 @@ let main argv =
         0 |> ignore
 
     elif nodeType = "singleNode" then
-        printfn "Starting the single node"
+        printfn "Starting the My PC  node"
         let system = System.create systemName <| singleNodeConfig
         spawnOpt system "minerProvider" mineWork [ Router(Akka.Routing.FromConfig.Instance) ] |> ignore
         let genRouter = spawnOpt system "generatorProvider" hashGen [ Router(Akka.Routing.FromConfig.Instance) ]
@@ -116,5 +118,3 @@ let main argv =
         initStatParams()
 
     readInput()
-
-    0 // Return an integer exit code
