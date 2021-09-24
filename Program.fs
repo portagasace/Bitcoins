@@ -66,7 +66,9 @@ let main argv =
             return! loop ()
         }
         loop()
- 
+
+ // Creating the BOSS Node
+
     if nodeType = "boss" then  
         printfn "Starting the Boss node"
         printfn "Remote Nodes are invited to join"
@@ -85,6 +87,19 @@ let main argv =
         )
 
         0 |> ignore
+
+    
+// For Local Node
+
+    elif nodeType = "myNode" then
+        printfn "Starting the My PC  node"
+        let system = System.create systemName <| singleNodeConfig
+        spawnOpt system "provideMiner" doMine [ Router(Akka.Routing.FromConfig.Instance) ] |> ignore
+        let genRouter = spawnOpt system "provideGenerator" genHash [ Router(Akka.Routing.FromConfig.Instance) ]
+        genRouter <! GenerateRandomString
+        initStatParams()
+
+// For remote Node 
 
     elif nodeType = "remote" then
         printfn "Starting the remote node"
@@ -111,13 +126,5 @@ let main argv =
                 }
                 loop ()
         0 |> ignore
-
-    elif nodeType = "myNode" then
-        printfn "Starting the My PC  node"
-        let system = System.create systemName <| singleNodeConfig
-        spawnOpt system "provideMiner" doMine [ Router(Akka.Routing.FromConfig.Instance) ] |> ignore
-        let genRouter = spawnOpt system "provideGenerator" genHash [ Router(Akka.Routing.FromConfig.Instance) ]
-        genRouter <! GenerateRandomString
-        initStatParams()
 
     readInput()
