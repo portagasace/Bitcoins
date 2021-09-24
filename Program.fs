@@ -57,6 +57,7 @@ let main argv =
                 let hash = SHA256 input
                 if hashLeadingZerosCount hash = zeroCount then
                     printCoin zeroCount input hash (mailbox.Self.Path.ToStringWithAddress())
+                    printStats()
                 elif message.Nonce < Int32.MaxValue then
                     message.Nonce <- (message.Nonce+1)
                     select minerName mailbox.Context.System <! message
@@ -66,8 +67,8 @@ let main argv =
         }
         loop()
  
-    if nodeType = "seed" then  
-        printfn "Starting the seed node"
+    if nodeType = "boss" then  
+        printfn "Starting the Boss node"
         let seedSystem = seedAkkaConfig seedHostName port |> System.create systemName
 
 
