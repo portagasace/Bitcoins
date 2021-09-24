@@ -1,9 +1,9 @@
 # Bitcoins
 DOS Project 1
-The goal of this first project is to use F# and the actor model to build a good solution to this problem that runs well on multi-core machines.
+The goal of this first project is to use F# and the actor model to build a Simple Bitcoin model usin SHA-256, and create multiple actors to mine the coins using AKKA.net.
 
 
-Size of the work unit that you determined results in the best performance for your implementation and an explanation of how you determined it. The size of the work unit refers to the number of sub-problems that a worker gets in a single request from the boss.
+
 
 
 
