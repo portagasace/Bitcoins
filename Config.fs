@@ -14,7 +14,7 @@ akka {
 			"System.Object" = json
 		}
 		deployment {
-			/minerProvider = {
+			/provideMiner = {
 				router = round-robin-pool
 				metrics-selector = cpu
 				nr-of-instances = 40
@@ -25,7 +25,7 @@ akka {
 					max-nr-of-instances-per-node = 10
 				}
 			}
-			/generatorProvider = {
+			/provideGenerator = {
 				router = broadcast-pool
 				metrics-selector = cpu
 				nr-of-instances = 20
@@ -53,7 +53,6 @@ akka {
 			worker.min-nr-of-members = 1
 		}
 		seed-nodes = ["akka.tcp://coin-mining-cluster@""" + hostName + """:""" + port + """"]
-		# when node cannot be reached within 10 sec, mark is as down
 		auto-down-unreachable-after = 20 s
 		failure-detector {
 			heartbeat-interval = 1 s
@@ -68,6 +67,8 @@ akka {
 	log-dead-letters-during-shutdown = off
 }
 """)
+// Client Node configuration
+// When node cannot be reached within 10 sec, the node will be marked as down.
 
 let clientAkkaConfig hostName port seedHostName = Configuration.parse("""
 akka {  
@@ -90,7 +91,7 @@ akka {
 	cluster {
 		roles = ["worker"]  # custom node roles
 		seed-nodes = ["akka.tcp://coin-mining-cluster@""" + seedHostName + """:""" + port + """"]
-		# when node cannot be reached within 10 sec, mark is as down
+		
 		auto-down-unreachable-after = 20 s
 		failure-detector {
 			heartbeat-interval = 1 s
@@ -105,16 +106,18 @@ akka {
 	log-dead-letters-during-shutdown = off
 }
 """)
+// Single local Node Configuration 
+// Subproblems are assigned instances accordingly
 
 let singleNodeConfig = Configuration.parse("""
 akka {
     actor {
         deployment {
-            /minerProvider {
+            /provideMiner {
                 router = round-robin-pool
                 nr-of-instances = 10
             }
-            /generatorProvider{
+            /provideGenerator{
                 router = broadcast-pool
                 nr-of-instances = 5
             }

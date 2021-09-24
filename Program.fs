@@ -13,26 +13,26 @@ let main argv =
 
     let zeroCount = (argv.[1] |> int)
     let nodeType = argv.[0]
-    let seedHostName = if nodeType<>"singleNode" then argv.[2] else ""
-    let port = if nodeType<>"singleNode" then argv.[3] else ""
-    let hostName = if nodeType="client" then argv.[4] else ""
-    let systemName = if nodeType = "singleNode" then "coin-miner" else "coin-mining-cluster"
+    let seedHostName = if nodeType<>"myNode" then argv.[2] else ""
+    let port = if nodeType<>"myNode" then argv.[3] else ""
+    let hostName = if nodeType="remote" then argv.[4] else ""
+    let systemName = if nodeType = "myNode" then "coin-miner" else "coin-mining-cluster"
     let nodeName = sprintf "cluster-node-%s" Environment.MachineName
     
     let zeroCount = (argv.[1] |> int)
     let nodeType = argv.[0]
-    let seedHostName = if nodeType<>"singleNode" then argv.[2] else ""
-    let port = if nodeType<>"singleNode" then argv.[3] else ""
-    let hostName = if nodeType="client" then argv.[4] else ""
-    let systemName = if nodeType = "singleNode" then "coin-miner" else "coin-mining-cluster"
+    let seedHostName = if nodeType<>"myNode" then argv.[2] else ""
+    let port = if nodeType<>"myNode" then argv.[3] else ""
+    let hostName = if nodeType="remote" then argv.[4] else ""
+    let systemName = if nodeType = "myNode" then "coin-miner" else "coin-mining-cluster"
     let nodeName = sprintf "cluster-node-%s" Environment.MachineName
 
     let minerName = 
-        if nodeType = "singleNode" then "akka://" + systemName + "/user/minerProvider" else "akka.tcp://" + systemName +  "@" + seedHostName + ":" + port + "/user/minerProvider"
+        if nodeType = "myNode" then "akka://" + systemName + "/user/provideMiner" else "akka.tcp://" + systemName +  "@" + seedHostName + ":" + port + "/user/provideMiner"
 
 // Defining Hash Generator Actor
 
-    let hashGen (mailBox: Actor<MessageType>) = 
+    let genHash (mailBox: Actor<MessageType>) = 
         let rec loop() = actor {
             let! message = mailBox.Receive();
             match message with
@@ -48,7 +48,7 @@ let main argv =
 
  // Defining the minor actor 
  
-    let mineWork (mailbox: Actor<Message>) =
+    let doMine (mailbox: Actor<Message>) =
         let rec loop() = actor {
             let! message = mailbox.Receive ()
             match message.Type with
@@ -69,6 +69,8 @@ let main argv =
  
     if nodeType = "boss" then  
         printfn "Starting the Boss node"
+        printfn "Remote Nodes are invited to join"
+        printfn "-------------------------------------------------------------------------------------------------------"
         let seedSystem = seedAkkaConfig seedHostName port |> System.create systemName
 
 
@@ -76,21 +78,21 @@ let main argv =
 
         let cluster = Cluster.Get seedSystem
         cluster.RegisterOnMemberUp (fun () -> 
-            spawnOpt seedSystem "minerProvider" mineWork [ Router(Akka.Routing.FromConfig.Instance) ] |> ignore
-            let genRouter = spawnOpt seedSystem "generatorProvider" hashGen [ Router(Akka.Routing.FromConfig.Instance) ]
+            spawnOpt seedSystem "provideMiner" doMine [ Router(Akka.Routing.FromConfig.Instance) ] |> ignore
+            let genRouter = spawnOpt seedSystem "provideGenerator" genHash [ Router(Akka.Routing.FromConfig.Instance) ]
             genRouter <! GenerateRandomString
             initStatParams()
         )
 
         0 |> ignore
 
-    elif nodeType = "client" then
-        printfn "Starting the client node"
+    elif nodeType = "remote" then
+        printfn "Starting the remote node"
         let actorSystemClient = clientAkkaConfig hostName port seedHostName |> System.create systemName
         initStatParams()
         
         let clientListenerRef =  
-            spawn actorSystemClient "clientListener"
+            spawn actorSystemClient "remoteListner"
             <| fun mailbox ->
                 let cluster = Cluster.Get (mailbox.Context.System)
                 cluster.Subscribe (mailbox.Self, [| typeof<ClusterEvent.IMemberEvent>|])
@@ -110,11 +112,11 @@ let main argv =
                 loop ()
         0 |> ignore
 
-    elif nodeType = "singleNode" then
+    elif nodeType = "myNode" then
         printfn "Starting the My PC  node"
         let system = System.create systemName <| singleNodeConfig
-        spawnOpt system "minerProvider" mineWork [ Router(Akka.Routing.FromConfig.Instance) ] |> ignore
-        let genRouter = spawnOpt system "generatorProvider" hashGen [ Router(Akka.Routing.FromConfig.Instance) ]
+        spawnOpt system "provideMiner" doMine [ Router(Akka.Routing.FromConfig.Instance) ] |> ignore
+        let genRouter = spawnOpt system "provideGenerator" genHash [ Router(Akka.Routing.FromConfig.Instance) ]
         genRouter <! GenerateRandomString
         initStatParams()
 

@@ -89,7 +89,7 @@ let printStats() =
 
 let printCoin input coin hash nodeAddress= 
     printfn "\n\n======================================================================\n\
-    New Coin found\n\
+    Hurray !!! New Coin found\n\
     Leading Zeros = %d\n\
     Coin = %s\n\
     Hash = %s\n\
